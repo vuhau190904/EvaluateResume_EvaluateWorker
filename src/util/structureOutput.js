@@ -438,3 +438,69 @@ export const ListJobSchema = {
   },
   required: ["jobs"]
 };
+
+export const QuestionSchema = {
+  type: "object",
+  properties: {
+    questions: {
+      type: "array",
+      items: { type: "string" },
+      description: "List of questions"
+    }
+  },
+  required: ["questions"]
+};
+
+export const InterviewFeedbackSchema = {
+  type: "object",
+  properties: {
+    score: {
+      type: "number",
+      minimum: 0,
+      maximum: 100,
+      description: "Overall interview score, from 0 to 100"
+    },
+    feedback: {
+      type: "object",
+      properties: {
+        overall_summary: {
+          type: "string",
+          description: "Brief summary of the candidate's interview performance."
+        },
+        strengths: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of strengths demonstrated by the candidate."
+        },
+        weaknesses: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of weaknesses or areas for improvement."
+        },
+        question_analysis: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              question: { type: "string", description: "The interview question." },
+              user_response: { type: "string", description: "The candidate's response." },
+              analysis: { type: "string", description: "Evaluation and comment on the answer." },
+              rating: { type: "string", enum: ["good", "average", "poor"], description: "Rating of the answer quality." }
+            },
+            required: ["question", "user_response", "analysis", "rating"]
+          },
+          description: "Per-question analysis and rating."
+        },
+        advice: {
+          type: "array",
+          items: { type: "string" },
+          description: "Actionable advice for the candidate."
+        }
+      },
+      required: ["overall_summary", "strengths", "weaknesses", "question_analysis", "advice"],
+      description: "Structured feedback for the candidate based on interview responses."
+    }
+  },
+  required: ["score", "feedback"]
+};
+

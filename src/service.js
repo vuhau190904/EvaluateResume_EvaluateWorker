@@ -3,6 +3,7 @@ import { connectDatabase, disconnectDatabase } from './database/prisma.js';
 import redisClient from './database/redis.js';
 import evaluateService from './service/evaluateService.js';
 import suggestService from './service/suggestService.js';
+import interviewService from './service/interviewService.js';
 dotenv.config();
 
 async function start() {
@@ -13,6 +14,7 @@ async function start() {
     await redisClient.connect();
     await evaluateService.start();
     await suggestService.start();
+    await interviewService.start();
     
     console.log('✅ Worker is running');
     console.log('🔄 Waiting for jobs...\n');

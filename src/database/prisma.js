@@ -34,3 +34,4 @@ export const disconnectDatabase = async () => {
 
 export default prisma;
 
+

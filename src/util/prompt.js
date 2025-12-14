@@ -336,7 +336,146 @@ class Prompt  {
                 `;
     }
 
-}
+    prompt_generate_questions(evaluate_result) {
+            return `
+            ## 💡 Expert Interviewer: Structured and Generic Question Generation (10 Levels)
 
+            You are a **senior, expert interviewer** skilled in crafting highly focused and structured questions applicable across various professional domains.
+
+            Your task is to analyze the evaluation result of a candidate's profile against a job description, provided in a JSON object, and generate a list of **EXACTLY 10 interview questions**.
+
+            The questions **MUST** be ordered **from easy/general to difficult/complex/strategic**, progressively challenging the candidate's capabilities. All questions must be relevant to the skills and requirements evaluated in the input data.
+
+            ### The 10-Question Structure (Generic Levels of Difficulty):
+
+            1.  **Level 1 (Easy/Background):** Confirming fundamental fit, motivation, and career interests.
+            2.  **Level 2 (Easy/Core Knowledge):** Probing basic familiarity with essential terms or principles of the role/industry.
+            3.  **Level 3 (Moderate/Routine Skill):** Validating the application of a core, essential skill in a simple, typical context.
+            4.  **Level 4 (Moderate/Process):** Exploring the candidate's typical workflow, organizational habits, and project initiation.
+            5.  **Level 5 (Medium/Collaboration):** Assessing interpersonal skills, handling standard team conflicts, and communication.
+            6.  **Level 6 (Medium/Adaptability):** Probing how they handle minor changes in priorities or unexpected (but common) difficulties.
+            7.  **Level 7 (Challenging/Complex Problem):** Assessing their structured approach to a significant, non-routine obstacle or complex challenge.
+            8.  **Level 8 (Difficult/Strategic & Impact):** Evaluating their ability to drive high-level results, quantify success, and influence broader outcomes.
+            9.  **Level 9 (Expert/Risk & Innovation):** Challenging their judgment on major risks, failure recovery, or proposing innovative solutions.
+            10. **Level 10 (Expert/Vision & Growth):** Probing their long-term vision, addressing a major identified weakness/gap, or discussing strategic future direction.
+
+            ---
+
+            ### 📥 INPUT DATA:
+            The following JSON object contains the evaluation results:
+            ${JSON.stringify(evaluate_result, null, 2)}
+
+            ---
+
+            ### 📋 OUTPUT FORMAT:
+
+            Return a single JSON object. The "questions" field must be an array of exactly **10 strings (questions)**, arranged in order of increasing difficulty and complexity.
+
+            \`\`\`json
+            {
+                "questions": [
+                    "Question 1 (Easy/Background & Fit).",
+                    "Question 2 (Easy/Core Knowledge).",
+                    "Question 3 (Moderate/Routine Skill Application).",
+                    "Question 4 (Moderate/Workflow & Process).",
+                    "Question 5 (Medium/Collaboration & Conflict).",
+                    "Question 6 (Medium/Adaptability & Minor Change).",
+                    "Question 7 (Challenging/Complex Problem-Solving Scenario).",
+                    "Question 8 (Difficult/Strategic Impact & Metrics).",
+                    "Question 9 (Expert/Risk Management & Innovation).",
+                    "Question 10 (Expert/Vision & Key Gaps)."
+                ]
+            }
+            \`\`\`
+        `;
+    }
+
+    prompt_evaluate_interview(interviewQuestions) {
+        return `
+            You are an expert technical interviewer and performance evaluator. Your response MUST be in English.
+
+            **Task:**
+            1. Analyze the candidate's responses in the interview history below.
+            2. Assign an overall score (from 0 to 100) based on the quality and completeness of the answers.
+            3. Generate detailed feedback in the following JSON format (DO NOT use Markdown or free-form text): 
+
+            ---
+            **🎯 Feedback JSON Structure:**
+            {
+                "overall_summary": "Brief summary of the candidate's interview performance.",
+                "strengths": ["Strength 1", "Strength 2", "..."],
+                "weaknesses": ["Weakness 1", "Weakness 2", "..."],
+                "question_analysis": [
+                    {
+                        "question": "Paste the interview question here.",
+                        "user_response": "Paste the candidate's response here.",
+                        "analysis": "Evaluate the answer (e.g., Was it strong? Lacking? Give specific feedback.)",
+                        "rating": "good" // or "average", or "poor"
+                    }
+                ],
+                "advice": ["Actionable advice 1", "Actionable advice 2", "..."]
+            }
+
+            **Interview History:**
+            ${interviewQuestions}
+
+            ---
+            **STRICT Output Format Requirement:**
+            You MUST respond with a SINGLE, VALID JSON object with these fields:
+                {
+                  "score": <number 0-100>,
+                  "feedback": {
+                    "overall_summary": <string>,
+                    "strengths": <array of strings>,
+                    "weaknesses": <array of strings>,
+                    "question_analysis": [
+                      {
+                        "question": <string>,
+                        "user_response": <string>,
+                        "analysis": <string>,
+                        "rating": <"good"|"average"|"poor">
+                      }
+                    ],
+                    "advice": <array of strings>
+                  }
+                }
+            Do NOT include any other text or commentary outside the JSON object.
+
+            **Example of Desired Output:**
+            {
+              "score": 88,
+              "feedback": {
+                "overall_summary": "The candidate demonstrated strong technical expertise and clear communication...",
+                "strengths": [
+                  "Solid understanding of technical concepts",
+                  "Clear explanations and examples"
+                ],
+                "weaknesses": [
+                  "Needs to provide more detail for business impact",
+                  "Occasional lack of depth in some responses"
+                ],
+                "question_analysis": [
+                  {
+                    "question": "Describe your experience with machine learning algorithms.",
+                    "user_response": "I have worked on several ML algorithms including...",
+                    "analysis": "Comprehensive coverage of key algorithms. The examples were relevant.",
+                    "rating": "good"
+                  },
+                  {
+                    "question": "How do you handle missing data?",
+                    "user_response": "I use basic imputation.",
+                    "analysis": "Response was too brief; consider discussing advanced techniques.",
+                    "rating": "average"
+                  }
+                ],
+                "advice": [
+                  "Expand on business impact in future answers.",
+                  "Review best practices on handling incomplete data."
+                ]
+              }
+            }
+        `;
+    }
+}
 const prompt = new Prompt();
 export default prompt;

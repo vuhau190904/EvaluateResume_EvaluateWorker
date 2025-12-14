@@ -251,6 +251,91 @@ class Prompt  {
         `;
     }
 
+    prompt_search_optimize(input) {
+        return `
+        You are a High-Performance Search Query Generator.
+        Task: Convert User Input: "${input}" into a highly effective Tavily search string.
+
+        --- 1. JOB TITLE NORMALIZATION ---
+        - Extract the core Role/Skill.
+        - Translate to English if needed.
+        - Put it in quotes " ". (e.g. "Accountant", "Java Developer")
+
+        --- 2. LOCATION EXPANSION LOGIC (CRITICAL) ---
+        **Rule A: Specific City/District Mentioned**
+        - IF user specifies a city (e.g. "Da Nang", "Shibuya") -> Use: in [City Name].
+
+        **Rule B: Country Mentioned OR No Location (Implicit)**
+        - You must EXPAND the search to include the Country AND its Major Cities/Capital using OR operators.
+
+        - IF Target is **Vietnam** (Explicit "Vietnam" or Implicit VI/EN input):
+        -> Use: (Vietnam OR "Ho Chi Minh" OR "Ha Noi" OR "Da Nang")
+
+        - IF Target is **Japan** (Explicit "Japan" or Implicit Japanese input):
+        -> Use: (Japan OR Tokyo OR Osaka)
+
+        - IF Target is **Korea** (Explicit "Korea" or Implicit Korean input):
+        -> Use: (Korea OR Seoul)
+
+        - (Apply similar expansion for other countries).
+
+        --- 3. KEYWORD STRATEGY ---
+        - Always add: ("job posting" OR "job opening" OR "career opportunity" OR "we are hiring" OR "apply now" OR "job description")
+        - Always add year: ${new Date().getFullYear()}
+        - Always exclude: -tutorial -course -wiki -template -cv -resume -article -blog -news -trend
+
+        --- OUTPUT FORMAT ---
+        Return ONLY the raw query string.
+        `;
+    }
+
+    prompt_suggest_jd(input) {
+        return `
+            You are an expert job information extractor. You will be given search results from job websites and articles about job market.
+            Your task is to extract actual job opportunities mentioned in the content and format them as a JSON array.
+
+            ### INPUT FORMAT:
+            The input is a JSON array of search results. Each result contains:
+            - title: Article/page title
+            - url: Link to the page
+            - content: Text content mentioning jobs, companies, positions, requirements
+            - score: Relevance score
+
+            ### EXTRACTION RULES:
+            1. Look for actual job positions mentioned in the content (e.g., "Software Engineer", "Data Analyst", "Marketing Manager")
+            2. Extract company names if mentioned
+            3. Extract locations (cities, regions) where jobs are available
+            4. Extract job descriptions/requirements from the content
+            5. Use the URL as the job link
+            6. If date is mentioned, extract it; otherwise use "Recently" or "Not specified"
+
+            ### OUTPUT FORMAT:
+            Return a JSON object with this structure:
+            {
+                "jobs": [
+                    {
+                        "title": "Job Title (extracted from content)",
+                        "company": "Company Name (if mentioned, otherwise 'Not specified')",
+                        "location": "Location (city, region, or country)",
+                        "description": "Brief job description or requirements extracted from content",
+                        "link": "URL from search result",
+                        "datePosted": "Date if mentioned, otherwise 'Recently'"
+                    }
+                ]
+            }
+
+            ### IMPORTANT:
+            - Extract ONLY jobs that are actually mentioned in the content
+            - Do NOT invent or generate fake jobs
+            - If a search result mentions multiple jobs, create separate entries for each
+            - If no actual jobs are found, return empty array: { "jobs": [] }
+            - Return ONLY valid JSON, no markdown, no explanation
+
+            ### INPUT DATA:
+            ${input}
+                `;
+    }
+
 }
 
 const prompt = new Prompt();

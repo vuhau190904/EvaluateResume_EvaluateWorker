@@ -404,3 +404,37 @@ export const LayoutSchema = {
   },
   required: ["header_score", "contact_info_score", "section_structure_score", "alignment_score", "font_style_score", "whitespace_balance_score", "visual_hierarchy_score", "overall_layout_score", "issues", "comments"]
 };
+
+export const searchOptimizeOutputSchema = {
+  type: "object",
+  properties: {
+    search_optimize: {
+      type: "string",
+      description: "The optimized search query string for Tavily."
+    }
+  },
+  required: ["search_optimize"]
+};
+
+export const ListJobSchema = {
+  type: "object",
+  properties: {
+    jobs: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          company: { type: "string" },
+          location: { type: "string" },
+          description: { type: "string" },
+          link: { type: "string" },
+          datePosted: { type: "string" }
+        },
+        required: ["title", "location", "link"]
+      }, 
+      description: "List of extracted job postings"
+    }
+  },
+  required: ["jobs"]
+};
